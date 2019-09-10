@@ -1,0 +1,38 @@
+<div class="title">
+    <img src="/img/fire.gif">
+    <h1>Edit your communist profile:</h1>
+    <img src="/img/fire.gif" style="-webkit-transform: scaleX(-1);
+transform: scaleX(-1);">
+</div>
+
+{{#error}}
+    <h3>Try again comrade!</h3>
+{{/error}}
+
+<form method="POST">
+
+    <input id="name" type="text" name="name" value="{{edit.name}}" placeholder="First Name"></input>
+    <br>
+
+    <input id="surname" type="text" name="surname" value="{{edit.surname}}" placeholder="Surname"></input>
+    <br>
+    <input id="email" type="email" name="email" value="{{edit.email}}" placeholder="E-mail"></input>
+    <br>
+    <input id="password" type="password" name="password" placeholder="Password"></input>
+    <br>
+    <input id="age" type="text" name="age" value="{{edit.age}}" placeholder="Age"></input>
+    <br>
+    <input id="city" type="text" name="city" value="{{edit.city}}"></input>
+    <br>
+    <input id="homepage" type="text" name="homepage" value="{{edit.homepage}}" placeholder="Homepage"></input>
+    <br>
+    <br>
+    <button id="button">UPDATE</button>
+    <br>
+    <br>
+    <a id="button" href="/thanks">GO BACK</a>
+    <br>
+    <br>
+    <a id="button" href="/logout">LOG OUT</a>
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+</form>

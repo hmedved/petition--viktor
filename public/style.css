@@ -1,0 +1,127 @@
+html {
+    height: 100vh;
+}
+
+body {
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+    text-align: center;
+    color: white;
+    background-color: rgb(181, 23, 23);
+    height: 100vh;
+}
+
+.title {
+    display: inline-flex;
+}
+
+h1,
+h2,
+h3 {
+    font-weight: 100;
+}
+
+a {
+    text-decoration: none;
+    background-color: rgb(181, 23, 23);
+    color: white;
+    font-size: 12px;
+}
+
+input#signature {
+    color: white;
+}
+
+#button {
+    -webkit-transition: 0.2s;
+    display: inline-block;
+}
+
+#button:hover {
+    background-color: white;
+    color: rgb(181, 23, 23);
+    /* font-weight: 650; */
+    border-radius: 10px;
+    transition: 0.2s linear;
+}
+.button,
+button,
+#button,
+a#button {
+    /* display: inline-block; */
+    border: 1px solid white;
+    padding: 5px;
+    background: transparent;
+    color: white;
+    width: 150px;
+    font-weight: 450;
+    white-space: nowrap;
+    text-align: center;
+}
+
+a {
+    width: 150px;
+}
+
+div.title>img {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
+    width: 50px;
+    height: 50px;
+}
+
+div.thanks>img {
+    width: 100%;
+    height: auto;
+}
+
+/* input, */
+select,
+option,
+#go {
+    border-radius: 10px;
+    display: inline-block;
+}
+
+form>input {
+    display: inline-block;
+    background: transparent;
+    outline: none;
+    border: none;
+    border-bottom: 1px solid white;
+    height: 30px;
+    color: white;
+    font-size: 14px;
+}
+
+::placeholder {
+    color: white;
+    opacity: 0.5;
+    font-style: italic;
+    font-size: 14px;
+    min-height: 50px;
+}
+
+#canvas {
+    height: 100px;
+    width: 500px;
+    color: white;
+    border: 1px white solid;
+}
+
+#signature {
+    color: white;
+}
+
+#signers,
+#registerText {
+    color: white;
+}
+
+body>li {
+    box-sizing: border-box;
+    float: left;
+    color: white;
+    background-color: rgb(181, 23, 23);
+}

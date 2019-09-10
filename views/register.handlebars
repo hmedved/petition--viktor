@@ -1,0 +1,31 @@
+<div class="title">
+    <img src="/img/fire.gif">
+    <h1>Help bring Communism back!</h1>
+    <img src="/img/fire.gif" style="-webkit-transform: scaleX(-1);
+transform: scaleX(-1);">
+</div>
+
+{{#if error}}
+    <p>Please fill all fields comrade!</p>
+{{/if}}
+
+
+
+
+<form method="POST">
+    <input id="name" type="text" name="name" placeholder="First Name"></input>
+    <br>
+    <input id="surname" type="text" value="" name="surname" placeholder="Surname"></input>
+    <br>
+    <input id="email" type="email" value="" name="email" placeholder="E-mail"></input>
+    <br>
+    <input id="password" type="password" value="" name="password" placeholder="Password"></input>
+    <br>
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <br>
+    <br>
+    <button id="button">SUBMIT</button>
+    <br>
+    <p>Already signed our Communist petition?</p>
+    <a id="button" href="/login">LOG IN</a>
+</form>

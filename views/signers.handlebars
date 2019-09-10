@@ -1,0 +1,21 @@
+<div class="title">
+    <img src="/img/fire.gif">
+    <h1> Here is the list of our communists
+        {{#if city}}
+            from {{city}}
+        {{/if}}
+    </h1>
+    <img src="/img/fire.gif" style="-webkit-transform: scaleX(-1);
+transform: scaleX(-1);">
+</div>
+
+    {{#signers}}
+        <div class="signersContainer">
+            <ul>
+                <li>
+                    <a href="{{homepage}}"></a> {{name}} {{surname}}, {{age}},
+                    <a href="signers/{{city}}">{{city}} </a>
+                </li>
+                <ul>
+        </div>
+    {{/signers}}

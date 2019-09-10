@@ -1,0 +1,31 @@
+<div class="title">
+<img src="/img/fire.gif">
+<h1>Login comrade!</h1>
+<img src="/img/fire.gif" style="-webkit-transform: scaleX(-1);
+transform: scaleX(-1);">
+</div>
+
+
+{{#if error}}
+    <p>Please remember your password...</p>
+{{/if}}
+
+<form method="POST">
+
+    <input id="email" type="text" value="" name="email" placeholder="Your e-mail"</input>
+    <br>
+
+
+    <input id="password" type="password" value="" name="password" placeholder="Your password"></input>
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <br>
+
+    <br>
+
+    <button id="button" href="/login">LOG IN</button>
+<br>
+<br>
+
+<a id="button" href="/register">REGISTER</a>
+
+</form>

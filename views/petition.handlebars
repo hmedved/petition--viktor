@@ -1,0 +1,27 @@
+<div class="title">
+    <img src="/img/fire.gif">
+    <h2>Our petition is to bring good old pal called Communist system back into our lives!</h2>
+    <img src="/img/fire.gif" style="-webkit-transform: scaleX(-1);
+    transform: scaleX(-1);">
+</div>
+
+{{#if error}}
+    <p>Please sign.</p>
+{{/if}}
+
+
+<form method="POST">
+
+        <p>Sign here comrade!</p>
+        <input id="signature" name="signature" type="hidden"></input>
+        <input type="hidden" name="_csrf" value="{{csrfToken}}"></input>
+
+
+        <canvas id="canvas" width="500px" height="100px"></canvas>
+        <br>
+        <br>
+        <button id="button">SUBMIT</button>
+
+
+</form>
+<script src="canvas.js"></script>
