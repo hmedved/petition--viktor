@@ -85,7 +85,7 @@ app.post("/register", (request, response) => {
                     console.log("data.rowsh is here:", data.rows[0].id);
                     request.session.communistID = data.rows[0].id;
                     console.log("request session is this :", request.session);
-
+                  // XXX: Here init the signup flow, i.e.db.initCommnistSignup(communistId) 
                 }).then(() => {
                     response.redirect("/profile")
                 })
@@ -174,6 +174,7 @@ app.post("/edit", (request, response) => {
                     reguest.body.homepage,
                     reguest.session.communistID
                 )
+          // XXX: Here update the signup flow, i.e.db.updateCommunistSignup(communistId, "USER_DATA_DONE") 
             }).then(() => {
                 response.redirect("/thanks/");
             }).catch(error => {
@@ -310,6 +311,11 @@ app.get("/signers/:city", (request, response) => {
 // XXX login GET
 app.get("/login", (request, response) => {
     if (request.session.communistID) {
+      // XXX: Here check the signup flow, i.e.db.getCommunistSignup(communistId)
+      // IF result is REGISTRATION_DONE
+      // redirect to user/post data
+      // IF result is USER_DATA_DONE
+      // redirect to /petition...
         response.redirect("/petition")
     } else {
         response.render("login", {

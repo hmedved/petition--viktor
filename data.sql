@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS petition_communists;
 DROP TABLE IF EXISTS communists_profiles;
 DROP TABLE IF EXISTS communist;
+DROP TABLE IF EXISTS signup_flow;
+DROP TABLE IF EXISTS signup_steps;
 
 CREATE TABLE communist(
     id SERIAL PRIMARY KEY,
@@ -24,3 +26,17 @@ CREATE TABLE communists_profiles(
     homepage VARCHAR(420),
     communistID INTEGER REFERENCES communist(id) NOT NULL UNIQUE
 );
+
+CREATE TABLE signup_steps(
+  id SERIAL PRIMARY KEY,
+  step VARCHAR(32)
+)
+
+INSERT  INTO signup_steps(step) VALUES ("REGISTRATION_DONE", "USER_DATA_DONE", "SIGNATURE_DONE")
+
+CREATE TABLE signup_flow(
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES communis(id) NOT NULL UNIQUE,
+  signup_step_id INTEGER REFERENCES signup_steps(id)
+);
+

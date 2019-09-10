@@ -48,22 +48,22 @@ module.exports.communistsProfiles = function communistsProfiles() {
 
 module.exports.getCity = function getCity(city) {
     return db.query(
-        `SELECT name, surname, age, city
-    FROM communists_profiles
-    LEFT JOIN communist
+        `SELECT cp.name, cp.surname, cp.age, cp.city
+    FROM communist c
+    LEFT JOIN communist_profiles cp
     ON communist.id = communists_profiles.communistID
-    WHERE city = $1`,
+    WHERE cp.city = $1`,
         [city]
     );
 };
 
 module.exports.getCommunistData = function getCommunistData(id) {
     return db.query(
-        `SELECT name, surname, email, age, city, homepage
-    FROM communists_profiles
-    LEFT JOIN communist
-    ON communist.id = communists_profiles.communistID
-    WHERE communist.id = $1`,
+        `SELECT c.name, c.surname, c.email, cp.age, cp.city, cp.homepage
+    FROM communist c
+    LEFT JOIN communist_profiles cp
+    ON c.id = cp.communistID
+    WHERE c.id = $1`,
         [id]
     );
 };
@@ -169,9 +169,39 @@ module.exports.updateCommunist_Profile = function updateCommunist_Profile(
 };
 
 
-// Ima li sta u databasi
+// Ima li sta u databasi - kurac
 
 module.exports.checkDatabase = function checkDatabase(id) {
     return db.query(`SELECT * FROM communists_profiles WHERE communistID = $1`, [id]
+    );
+};
+
+
+// SIGNUP FLOW QUERIES
+
+module.exports.getCommunistSignup = function getCommunistSignup(communistId) {
+    return db.query(`
+      SELECT signup_steps.step
+      FROM signup_steps
+      INNER JOIN signup_flow ON signup_flow.signup_step_id = signup_step.id
+      INNER JOIN communist ON communist.id = signup_flow.user_id
+      WHERE communis.id = $1`, [communistId]
+    );
+};
+
+module.exports.updateCommunistSignup = function updateCommunistSignup(communistId, signup_step) {
+    return db.query(`
+      UPDATE signup_flow
+      SET signup_step_id = (
+        SELECT id FROM signup_steps WHERE step = $1
+      )
+      WHERE signup_flow.user_id = $2`, [signup_step, communistId]
+    );
+};
+
+module.exports.initCommnistSignup = function initCommnistSignup(communistId) {
+    return db.query(`
+      INSERT INTO signup_flow(user_id, signup_step_id)
+      VALUES($1, ( SELECT id FROM signup_steps WHERE step = 'REGISTRATION_DONE')); `, [communistId]
     );
 };
