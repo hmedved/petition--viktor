@@ -205,3 +205,16 @@ module.exports.initCommnistSignup = function initCommnistSignup(communistId) {
       VALUES($1, ( SELECT id FROM signup_steps WHERE step = 'REGISTRATION_DONE')); `, [communistId]
     );
 };
+
+// EXAMPLE QUERIES TO GET COMMUNIST DATA
+
+/*
+    SELECT cp.name, cp.surname, cp.age, cp.city, cp.homepage
+    FROM communist_profiles cp
+    INNER JOIN communist c ON c.id = cp.communistID
+    where c.id = $1, // $1 is the input param, i.e. the communist id
+
+    the same you could use to search by name, city, homepage, etc...
+    the main difference is that with id, you should have only 1 result, i.e. only one communist
+    with the other search criteria you could have multiple results
+*/
