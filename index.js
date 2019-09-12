@@ -68,16 +68,13 @@ app.get("/register", (request, response) => {
 // XXX register POST
 app.post("/register", (request, response) => {
     if (
-        request.body.name != "" &&
-        request.body.surname != "" &&
-        request.body.email != ""
+        request.body.email != "" &&
+        request.body.password != ""
     ) {
         bcrypt.hashPassword(request.body.password).then(hash => {
             request.body.password = hash;
             return db
                 .registerCommunist(
-                    request.body.name,
-                    request.body.surname,
                     request.body.email,
                     hash
                 )
@@ -85,7 +82,9 @@ app.post("/register", (request, response) => {
                     console.log("data.rowsh is here:", data.rows[0].id);
                     request.session.communistID = data.rows[0].id;
                     console.log("request session is this :", request.session);
-
+                    return {communistId: data.rows[0].id};
+                }).then(({ communistId }) => {
+                    return db.initCommnistSignup(communistId);
                 }).then(() => {
                     response.redirect("/profile")
                 })
@@ -110,27 +109,22 @@ app.get("/profile", (request, response) => {
             layout: "main"
         })
     }
-    /*db.checkDatabase(request.session.communistID).then(data => {
-        console.log("ovo je data koji moram gledatiii:", data);
-        response.render("profile", {
-            layout: "main"
-        })
-    })
-    /*
-    */
 })
 
 // XXX profile POST
 app.post("/profile", (request, response) => {
-    console.log("ovo je reg sess communistID :", request.session.communistID);
-    console.log("ovo je cijeli session :", request.session);
     return db
         .communistProfile(
+            request.body.name,
+            request.body.surname,
             request.body.age,
             request.body.city,
             request.body.homepage,
             request.session.communistID
-        ).then(() => {
+        ).then(result => {
+            const communistId = result.rows[0].id;
+            return db.updateCommunistSignup(communistId, "USER_DATA_DONE")
+        }).then(() => {
             response.redirect("/petition");
         })
         .catch(error => {
@@ -162,35 +156,38 @@ app.get("/edit", (request, response) => {
 app.post("/edit", (request, response) => {
     console.log("request.session.communistID vvvv: ", request.session.communistID);
     if (request.body.password == "") {
+            console.log(request.body.email)
+            console.log(request.session.communistID)
         db.updateCommunistWithoutPassword(
+            request.body.email,
+            request.session.communistID
+        ).then(() => {
+            db.updateCommunist_Profile(
                 request.body.name,
                 request.body.surname,
-                request.body.email,
+                request.body.age,
+                request.body.city,
+                request.body.homepage,
                 request.session.communistID
-            ).then(() => {
-                 db.updateCommunist_Profile(
-                    request.body.age,
-                    request.body.city,
-                    reguest.body.homepage,
-                    reguest.session.communistID
-                )
-            }).then(() => {
-                response.redirect("/thanks/");
-            }).catch(error => {
-                console.log("error :", error);
-            })
+            )
+            // XXX: Here update the signup flow, i.e.db.updateCommunistSignup(communistId, "USER_DATA_DONE")
+        }).then(() => {
+            response.redirect("/thanks/");
+        }).catch(error => {
+            console.log("error :", error);
+        })
     } else {
         bcrypt
             .hashPassword(request.body.password)
             .then(password => {
                 return db.updateCommunistWithPassword(
-                    request.body.name,
-                    request.body.surname,
                     request.body.email,
                     password,
                     request.session.communistID
                 ).then(() => {
                     return db.updateCommunist_Profile(
+                        request.body.name,
+                        request.body.surname,
                         request.body.age,
                         request.body.city,
                         request.body.homepage,
@@ -231,11 +228,12 @@ app.post("/petition", (request, response) => {
             // request.body.surname,
             request.body.signature,
             request.session.communistID
-        )
-        .then(data => {
+        ).then(data => {
             console.log("request.session.signatureID : ", request.session.signatureID);
             request.session.signatureID = data.rows[0].id;
-
+        }).then(() => {
+            const communistId = request.session.communistID;
+            return db.updateCommunistSignup(communistId, "SIGNATURE_DONE");
         }).then(() => {
             response.redirect("/thanks");
         })
@@ -310,6 +308,11 @@ app.get("/signers/:city", (request, response) => {
 // XXX login GET
 app.get("/login", (request, response) => {
     if (request.session.communistID) {
+        // XXX: Here check the signup flow, i.e.db.getCommunistSignup(communistId)
+        // IF result is REGISTRATION_DONE
+        // redirect to user/post data
+        // IF result is USER_DATA_DONE
+        // redirect to /petition...
         response.redirect("/petition")
     } else {
         response.render("login", {
