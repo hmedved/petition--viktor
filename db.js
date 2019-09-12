@@ -2,30 +2,28 @@ var spicedPg = require("spiced-pg");
 
 var db = spicedPg(
     process.env.DATABASE_URL ||
-        "postgres:postgres:postgres@localhost:5432/wintergreen-petition"
+    "postgres:postgres:postgres@localhost:5432/wintergreen-petition"
 );
 
 // Register a communist
 module.exports.registerCommunist = function registerCommunist(
-    name,
-    surname,
     email,
     password
 ) {
     return db.query(
         `INSERT INTO communist (
-        name,
-        surname,
         email,
         password)
-    VALUES ($1, $2, $3, $4)
+    VALUES ($1, $2)
     RETURNING id`,
-        [name, surname, email, password]
+        [email, password]
     );
 };
 
 // Create communist a profile
 module.exports.communistProfile = function communistProfile(
+    name,
+    surname,
     age,
     city,
     homepage,
@@ -33,8 +31,8 @@ module.exports.communistProfile = function communistProfile(
 
 ) {
     return db.query(
-        `INSERT INTO communists_profiles(age, city, homepage, communistID) VALUES ($1, $2, $3, $4) RETURNING id`,
-        [age, city, homepage, id]
+        `INSERT INTO communists_profiles(name, surname, age, city, homepage, communistID) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        [name, surname, age, city, homepage, id]
     );
 };
 
@@ -50,7 +48,7 @@ module.exports.getCity = function getCity(city) {
     return db.query(
         `SELECT cp.name, cp.surname, cp.age, cp.city
     FROM communist c
-    LEFT JOIN communist_profiles cp
+    LEFT JOIN communists_profiles cp
     ON communist.id = communists_profiles.communistID
     WHERE cp.city = $1`,
         [city]
@@ -59,9 +57,9 @@ module.exports.getCity = function getCity(city) {
 
 module.exports.getCommunistData = function getCommunistData(id) {
     return db.query(
-        `SELECT c.name, c.surname, c.email, cp.age, cp.city, cp.homepage
+        `SELECT c.email, cp.age, cp.city, cp.homepage, cp.name, cp.surname
     FROM communist c
-    LEFT JOIN communist_profiles cp
+    LEFT JOIN communists_profiles cp
     ON c.id = cp.communistID
     WHERE c.id = $1`,
         [id]
@@ -125,46 +123,44 @@ module.exports.whoSigned = function whoSigned(signature, id) {
 };
 
 module.exports.updateCommunistWithPassword = function updateCommunistWithPassword(
-    name,
-    surname,
     email,
     password,
     id
 ) {
     return db.query(
         `UPDATE communist
-    SET name = $1, surname = $2, email= $3 , password = $4
-    WHERE id = $5`,
-        [name, surname, email, password, id]
+    SET email= $1 , password = $2
+    WHERE id = $3`,
+        [email, password, id]
     );
 };
 
 module.exports.updateCommunistWithoutPassword = function updateCommunistWithoutPassword(
-    name,
-    surname,
     email,
     id
 ) {
     return db.query(
         `UPDATE communist
-    SET name = $1, surname = $2, email = $3
-    WHERE id = $4`,
-        [name, surname, email, id]
+    SET email = $1
+    WHERE id = $2`,
+        [email, id]
     );
 };
 
 module.exports.updateCommunist_Profile = function updateCommunist_Profile(
+    name,
+    surname,
     age,
     city,
     homepage,
     id
 ) {
     return db.query(
-        `INSERT INTO communists_profiles (age, city, homepage, communistid)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (communistID)
-        DO UPDATE SET age = $1, city = $2, homepage = $3`,
-        [age, city, homepage, id]
+        `
+        UPDATE communists_profiles
+        SET name = $1, surname = $2, age = $3, city = $4, homepage = $5
+        WHERE communistID = $6;`,
+        [name, surname, age, city, homepage, id]
     );
 };
 
@@ -178,6 +174,13 @@ module.exports.checkDatabase = function checkDatabase(id) {
 
 
 // SIGNUP FLOW QUERIES
+
+module.exports.initCommnistSignup = function initCommnistSignup(communistId) {
+    return db.query(`
+      INSERT INTO signup_flow(user_id, signup_step_id)
+      VALUES($1, ( SELECT id FROM signup_steps WHERE step = 'REGISTRATION_DONE')); `, [communistId]
+    );
+};
 
 module.exports.getCommunistSignup = function getCommunistSignup(communistId) {
     return db.query(`
@@ -193,16 +196,9 @@ module.exports.updateCommunistSignup = function updateCommunistSignup(communistI
     return db.query(`
       UPDATE signup_flow
       SET signup_step_id = (
-        SELECT id FROM signup_steps WHERE step = $1
+        SELECT id FROM signup_steps WHERE step = $1::text
       )
       WHERE signup_flow.user_id = $2`, [signup_step, communistId]
-    );
-};
-
-module.exports.initCommnistSignup = function initCommnistSignup(communistId) {
-    return db.query(`
-      INSERT INTO signup_flow(user_id, signup_step_id)
-      VALUES($1, ( SELECT id FROM signup_steps WHERE step = 'REGISTRATION_DONE')); `, [communistId]
     );
 };
 

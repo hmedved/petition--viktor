@@ -31,13 +31,13 @@ CREATE TABLE communists_profiles(
 CREATE TABLE signup_steps(
   id SERIAL PRIMARY KEY,
   step VARCHAR(32)
-)
+);
 
-INSERT  INTO signup_steps(step) VALUES ("REGISTRATION_DONE", "USER_DATA_DONE", "SIGNATURE_DONE")
+INSERT  INTO signup_steps(step) VALUES ('REGISTRATION_DONE'), ('USER_DATA_DONE'), ('SIGNATURE_DONE');
 
 CREATE TABLE signup_flow(
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES communis(id) NOT NULL UNIQUE,
+  user_id INTEGER REFERENCES communist(id) NOT NULL UNIQUE,
   signup_step_id INTEGER REFERENCES signup_steps(id)
 );
 
