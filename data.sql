@@ -4,12 +4,10 @@ DROP TABLE IF EXISTS communist;
 DROP TABLE IF EXISTS signup_flow;
 DROP TABLE IF EXISTS signup_steps;
 
--- A bit revised, no need to store communist data besides id and email
 CREATE TABLE communist(
     id SERIAL PRIMARY KEY,
     email VARCHAR(999) NOT NULL UNIQUE,
     password VARCHAR(999) NOT NULL
-
 );
 
 CREATE TABLE petition_communists(
@@ -20,8 +18,8 @@ CREATE TABLE petition_communists(
 
 CREATE TABLE communists_profiles(
     id SERIAL primary key,
-    name VARCHAR(64) NOT NULL,
-    surname VARCHAR(64) NOT NULL,
+    name VARCHAR (64) NOT NULL,
+    surname VARCHAR (64) NOT NULL,
     age INTEGER,
     city VARCHAR(42),
     homepage VARCHAR(420),
@@ -40,4 +38,3 @@ CREATE TABLE signup_flow(
   user_id INTEGER REFERENCES communist(id) NOT NULL UNIQUE,
   signup_step_id INTEGER REFERENCES signup_steps(id)
 );
-

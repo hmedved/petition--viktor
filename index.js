@@ -1,11 +1,16 @@
+//Set di server
 const express = require("express");
+const app = express();
+
+// Body-parser extract the entire body portion of an incoming request stream and exposes it on req.body.
 const bodyParser = require("body-parser");
 const handlebars = require("express-handlebars");
+
+// Import the database
 var db = require("./db");
 var bcrypt = require("./bcrypt.js");
 var cookieSession = require("cookie-session");
 const csrf = require("csurf");
-const app = express();
 
 app.use(bodyParser.urlencoded({
     extended: false
@@ -13,11 +18,11 @@ app.use(bodyParser.urlencoded({
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
+// Static is serving static files CSS, JS, images
 app.use(express.static("./public"));
 
 app.set("view engine", "handlebars");
 
-// Body-parser extract the entire body portion of an incoming request stream and exposes it on req.body.
 // Handlebars
 app.engine(
     "handlebars",
@@ -27,7 +32,6 @@ app.engine(
 );
 
 
-// Static is serving static files CSS, JS, images
 
 // Protection for form
 app.use(
@@ -123,7 +127,7 @@ app.post("/profile", (request, response) => {
             request.session.communistID
         ).then(result => {
             const communistId = result.rows[0].id;
-            return db.updateCommunistSignup(communistId, "USER_DATA_DONE")
+            return db.updateCommunistSignup(communistId, 'USER_DATA_DONE')
         }).then(() => {
             response.redirect("/petition");
         })
@@ -171,6 +175,8 @@ app.post("/edit", (request, response) => {
                 request.session.communistID
             )
             // XXX: Here update the signup flow, i.e.db.updateCommunistSignup(communistId, "USER_DATA_DONE")
+            const communistId = request.session.communistID;
+            return db.updateCommunistSignup(communistId, 'USER_DATA_DONE')
         }).then(() => {
             response.redirect("/thanks/");
         }).catch(error => {
@@ -312,14 +318,14 @@ app.get("/login", (request, response) => {
         return db.getCommunistSignup(communistId).
             then(result => {
                 const registration_step = result.rows[0].step;
-                if (registration_step === "USER_DATA_DONE") {
+                if (registration_step === 'USER_DATA_DONE') {
                     response.redirect("/petition");
-                } else if (registration_step === "REGISTRATION_DONE") {
+                } else if (registration_step === 'REGISTRATION_DONE') {
                     response.render("profile", {
                         layout: "main"
                     })
                 } else {
-                    // fallback to somewhere
+                    response.redirect("/profile")
                 }
             });
     } else {
@@ -342,7 +348,7 @@ app.post("/login", (request, response) => {
                 .checkPassword(request.body.password, data.rows[0].password)
                 .then(data => {
                     console.log(
-                        "ovo treba:",
+                        "password is correct:",
                         data
                     );
 

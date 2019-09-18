@@ -2,7 +2,7 @@ var spicedPg = require("spiced-pg");
 
 var db = spicedPg(
     process.env.DATABASE_URL ||
-    "postgres:pguser:pguser@localhost:5432/petition"
+    "postgres:postgres:postgres@localhost:5432/wintergreen-petition"
 );
 
 // Register a communist
@@ -164,15 +164,6 @@ module.exports.updateCommunist_Profile = function updateCommunist_Profile(
     );
 };
 
-
-// Ima li sta u databasi - kurac
-
-module.exports.checkDatabase = function checkDatabase(id) {
-    return db.query(`SELECT * FROM communists_profiles WHERE communistID = $1`, [id]
-    );
-};
-
-
 // SIGNUP FLOW QUERIES
 
 module.exports.initCommnistSignup = function initCommnistSignup(communistId) {
@@ -209,7 +200,6 @@ module.exports.updateCommunistSignup = function updateCommunistSignup(communistI
     FROM communist_profiles cp
     INNER JOIN communist c ON c.id = cp.communistID
     where c.id = $1, // $1 is the input param, i.e. the communist id
-
     the same you could use to search by name, city, homepage, etc...
     the main difference is that with id, you should have only 1 result, i.e. only one communist
     with the other search criteria you could have multiple results

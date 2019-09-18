@@ -25,6 +25,8 @@
         "express": "^4.16.4",
         "express-handlebars": "^3.0.0",
         "express-session": "^1.14.1",
+        "handlebars": "^4.2.0",
+        "lodash": "^4.17.15",
         "redis": "^2.6.2",
         "spiced-pg": "^1.0.0"
     }
