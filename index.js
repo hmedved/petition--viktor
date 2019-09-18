@@ -82,33 +82,32 @@ app.post("/register", (request, response) => {
                     console.log("data.rowsh is here:", data.rows[0].id);
                     request.session.communistID = data.rows[0].id;
                     console.log("request session is this :", request.session);
-                    return {
-                        communistId: data.rows[0].id
-                    };
-                }).then(communistId => {
+                    return {communistId: data.rows[0].id};
+                }).then(({ communistId }) => {
                     return db.initCommnistSignup(communistId);
                 }).then(() => {
-                    response.redirect("/profile") {
-                        layout: main
-                    }
+                    response.redirect("/profile")
                 })
-        })
+                .catch(error => {
+                    console.log("ERROR ", error);
+                });
+        });
+    } else {
+        response.render("register", {
+            layout: "main",
+            error: "error"
+        });
     }
-})
+});
 
 // XXX profile GET
 app.get("/profile", (request, response) => {
     if (!request.session.communistID) {
         response.redirect("/register")
     } else {
-        // response.render("profile", {
-        // layout: "main"
-        db.getCommunistData(request.session.communistID)
-            .then(data => {
-                console.log("this is data :", data);
-                response.redirect("/thanks");
-
-            })
+        response.render("profile", {
+            layout: "main"
+        })
     }
 })
 
@@ -122,11 +121,10 @@ app.post("/profile", (request, response) => {
             request.body.city,
             request.body.homepage,
             request.session.communistID
-        ).then(data => {
-            const communistId = data.rows[0].id;
+        ).then(result => {
+            const communistId = result.rows[0].id;
             return db.updateCommunistSignup(communistId, "USER_DATA_DONE")
-        })
-        .then(() => {
+        }).then(() => {
             response.redirect("/petition");
         })
         .catch(error => {
@@ -134,8 +132,8 @@ app.post("/profile", (request, response) => {
             response.render("profile", {
                 layout: "main",
                 error: "error"
-            })
-        })
+            });
+        });
 });
 
 // XXX edit GET
@@ -156,9 +154,10 @@ app.get("/edit", (request, response) => {
 
 // // XXX edit POST
 app.post("/edit", (request, response) => {
+    console.log("request.session.communistID vvvv: ", request.session.communistID);
     if (request.body.password == "") {
-        console.log(request.body.email)
-        console.log(request.session.communistID)
+            console.log(request.body.email)
+            console.log(request.session.communistID)
         db.updateCommunistWithoutPassword(
             request.body.email,
             request.session.communistID
@@ -168,12 +167,10 @@ app.post("/edit", (request, response) => {
                 request.body.surname,
                 request.body.age,
                 request.body.city,
-                reguest.body.homepage,
-                reguest.session.communistID
+                request.body.homepage,
+                request.session.communistID
             )
-            // XXX: Here update the signup flow, i.e.db.updateCommunistSignup(communistId,"USER_DATA_DONE")
-            communistId = request.session.communistID;
-            return db.updateCommunistSignup(communistId, "USER_DATA_DONE")
+            // XXX: Here update the signup flow, i.e.db.updateCommunistSignup(communistId, "USER_DATA_DONE")
         }).then(() => {
             response.redirect("/thanks/");
         }).catch(error => {
@@ -184,39 +181,26 @@ app.post("/edit", (request, response) => {
             .hashPassword(request.body.password)
             .then(password => {
                 return db.updateCommunistWithPassword(
-                        request.body.email,
-                        password,
+                    request.body.email,
+                    password,
+                    request.session.communistID
+                ).then(() => {
+                    return db.updateCommunist_Profile(
+                        request.body.name,
+                        request.body.surname,
+                        request.body.age,
+                        request.body.city,
+                        request.body.homepage,
                         request.session.communistID
-                    ).then(() => {
-                        return db.updateCommunist_Profile(
-                            request.body.name,
-                            request.body.surname,
-                            request.body.age,
-                            request.body.city,
-                            request.body.homepage,
-                            request.body.signature,
-                            request.session.communistID
-                        )
-                    }).then(data => {
-                        console.log("request.session.signatureID : ", request.session.signatureID);
-                        request.session.signatureID = data.rows[0].id;
-                    }).then(() => {
-                        const communistId = request.session.communistID;
-                        return db.updateCommunistSignup(communistId, "SIGNATURE_DONE");
-                    }).then(() => {
-                        response.redirect("/thanks/");
-                    })
-                    .catch(error => {
-                        console.log(error);
-                        response.render("petition", {
-                            layout: "main",
-                            error: "error"
-                        });
-                    });
-            });
-    });
-});
-
+                    )
+                }).then(() => {
+                    response.redirect("/thanks/");
+                }).catch(error => {
+                    console.log("error :", error);
+                })
+            })
+    }
+})
 
 
 
@@ -244,11 +228,12 @@ app.post("/petition", (request, response) => {
             // request.body.surname,
             request.body.signature,
             request.session.communistID
-        )
-        .then(data => {
+        ).then(data => {
             console.log("request.session.signatureID : ", request.session.signatureID);
             request.session.signatureID = data.rows[0].id;
-
+        }).then(() => {
+            const communistId = request.session.communistID;
+            return db.updateCommunistSignup(communistId, "SIGNATURE_DONE");
         }).then(() => {
             response.redirect("/thanks");
         })
@@ -322,18 +307,21 @@ app.get("/signers/:city", (request, response) => {
 
 // XXX login GET
 app.get("/login", (request, response) => {
-    if (request.session.communistID) {
-        // XXX: Here check the signup flow, i.e.db.getCommunistSignup(communistId)
-        const communistId = request.session.communistID
-        db.getCommunistSignup(communistId);
-        // IF result is REGISTRATION_DONE
-        if (communistId && "REGISTRATION_DONE") {
-            // redirect to user/post data
-            response.redirect("/profile");
-            // IF result is USER_DATA_DONE
-        } else if (communistId && "USER_DATA_DONE") {
-            response.redirect("/petition")
-        }
+    const communistId = request.session.communistID;
+    if (communistId) {
+        return db.getCommunistSignup(communistId).
+            then(result => {
+                const registration_step = result.rows[0].step;
+                if (registration_step === "USER_DATA_DONE") {
+                    response.redirect("/petition");
+                } else if (registration_step === "REGISTRATION_DONE") {
+                    response.render("profile", {
+                        layout: "main"
+                    })
+                } else {
+                    // fallback to somewhere
+                }
+            });
     } else {
         response.render("login", {
             layout: "main"

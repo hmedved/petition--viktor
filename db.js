@@ -2,7 +2,7 @@ var spicedPg = require("spiced-pg");
 
 var db = spicedPg(
     process.env.DATABASE_URL ||
-    "postgres:postgres:postgres@localhost:5432/wintergreen-petition"
+    "postgres:pguser:pguser@localhost:5432/petition"
 );
 
 // Register a communist
@@ -52,6 +52,17 @@ module.exports.getCity = function getCity(city) {
     ON communist.id = communists_profiles.communistID
     WHERE cp.city = $1`,
         [city]
+    );
+};
+
+module.exports.getCommunistData = function getCommunistData(id) {
+    return db.query(
+        `SELECT c.email, cp.age, cp.city, cp.homepage, cp.name, cp.surname
+    FROM communist c
+    LEFT JOIN communists_profiles cp
+    ON c.id = cp.communistID
+    WHERE c.id = $1`,
+        [id]
     );
 };
 
@@ -191,17 +202,6 @@ module.exports.updateCommunistSignup = function updateCommunistSignup(communistI
     );
 };
 
-module.exports.getCommunistData = function getCommunistData(id) {
-    return db.query(
-        `SELECT c.email, cp.age, cp.city, cp.homepage, cp.name, cp.surname
-    FROM communist c
-    LEFT JOIN communists_profiles cp
-    ON c.id = cp.communistID
-    WHERE c.id = $1`,
-        [id]
-    );
-};
-
 // EXAMPLE QUERIES TO GET COMMUNIST DATA
 
 /*
@@ -209,9 +209,8 @@ module.exports.getCommunistData = function getCommunistData(id) {
     FROM communist_profiles cp
     INNER JOIN communist c ON c.id = cp.communistID
     where c.id = $1, // $1 is the input param, i.e. the communist id
+
     the same you could use to search by name, city, homepage, etc...
     the main difference is that with id, you should have only 1 result, i.e. only one communist
     with the other search criteria you could have multiple results
 */
-
-//module.exports.getCommunistData
