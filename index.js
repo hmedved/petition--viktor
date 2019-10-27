@@ -109,9 +109,16 @@ app.get("/profile", (request, response) => {
     if (!request.session.communistID) {
         response.redirect("/register")
     } else {
-        response.render("profile", {
-            layout: "main"
-        })
+		return db.getProfileData(request.session.communistID).
+		then(result => {
+			//checl if result is not null
+			response.render("profile", {
+				layout: "main"
+			})
+			// else {
+			//	redirect to smething else
+			//}
+		});
     }
 })
 
