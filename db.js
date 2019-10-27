@@ -2,7 +2,7 @@ var spicedPg = require("spiced-pg");
 
 var db = spicedPg(
     process.env.DATABASE_URL ||
-    "postgres:pguser:pgpass@localhost:5432/testdb"
+	"postgres:postgres:postgres@localhost:5432/wintergreen-petition"
 );
 
 // Register a communist
