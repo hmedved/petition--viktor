@@ -109,9 +109,16 @@ app.get("/profile", (request, response) => {
     if (!request.session.communistID) {
         response.redirect("/register")
     } else {
-        response.render("profile", {
-            layout: "main"
-        })
+		return db.getProfileData(request.session.communistID).
+		then(result => {
+			//checl if result is not null
+			response.render("profile", {
+				layout: "main"
+			})
+			// else {
+			//	redirect to smething else
+			//}
+		});
     }
 })
 
@@ -146,7 +153,6 @@ app.get("/edit", (request, response) => {
         response.redirect("/register");
     } else {
         db.getCommunistData(request.session.communistID).then(data => {
-            console.log("data :", data);
             response.render("edit", {
                 layout: "main",
                 edit: data.rows[0]
@@ -160,8 +166,6 @@ app.get("/edit", (request, response) => {
 app.post("/edit", (request, response) => {
     console.log("request.session.communistID vvvv: ", request.session.communistID);
     if (request.body.password == "") {
-            console.log(request.body.email)
-            console.log(request.session.communistID)
         db.updateCommunistWithoutPassword(
             request.body.email,
             request.session.communistID
@@ -174,17 +178,15 @@ app.post("/edit", (request, response) => {
                 request.body.homepage,
                 request.session.communistID
             )
-            // XXX: Here update the signup flow, i.e.db.updateCommunistSignup(communistId, "USER_DATA_DONE")
             const communistId = request.session.communistID;
             return db.updateCommunistSignup(communistId, 'USER_DATA_DONE')
         }).then(() => {
-            response.redirect("/thanks/");
+            response.redirect("/thanks");
         }).catch(error => {
             console.log("error :", error);
         })
     } else {
-        bcrypt
-            .hashPassword(request.body.password)
+        bcrypt.hashPassword(request.body.password)
             .then(password => {
                 return db.updateCommunistWithPassword(
                     request.body.email,
@@ -200,7 +202,9 @@ app.post("/edit", (request, response) => {
                         request.session.communistID
                     )
                 }).then(() => {
-                    response.redirect("/thanks/");
+					return db.updateCommunistSignup(request.session.communistID, 'USER_DATA_DONE')
+                }).then(() => {
+					response.redirect("/thanks");
                 }).catch(error => {
                     console.log("error :", error);
                 })
@@ -210,19 +214,26 @@ app.post("/edit", (request, response) => {
 
 
 
-// XXX petition GET
 app.get("/petition", (request, response) => {
-    if (!request.session.communistID) {
+    if (!request.session.communistID)  {
         response.redirect("/register");
-    } else {
-        if (!request.session.signatureID) {
-            response.render("petition", {
-                layout: "main"
-            });
-        } else {
-            response.redirect("/thanks");
-        }
     }
+	return db.checkSignupStep(request.session.communistID)
+		.then(result => {
+			const registration_step = result.rows[0].step;
+			if (registration_step === "REGISTRATION_DONE") {
+				response.redirect("/profile");
+			} else if (registration_step === "USER_DATA_DONE") {
+				console.log(2);
+				response.render("petition", {
+					layout: "main"
+				});
+			} else if (registration_step === 'SIGNATURE_DONE') {
+				response.redirect("/thanks");
+			}
+		}).catch(error => {
+			console.log("error:", error);
+		});
 });
 
 // XXX petition POST
