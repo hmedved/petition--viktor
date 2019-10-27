@@ -2,7 +2,7 @@ var spicedPg = require("spiced-pg");
 
 var db = spicedPg(
     process.env.DATABASE_URL ||
-    "postgres:postgres:postgres@localhost:5432/wintergreen-petition"
+    "postgres:pguser:pgpass@localhost:5432/testdb"
 );
 
 // Register a communist
@@ -191,6 +191,14 @@ module.exports.updateCommunistSignup = function updateCommunistSignup(communistI
       )
       WHERE signup_flow.user_id = $2`, [signup_step, communistId]
     );
+};
+
+module.exports.checkSignupStep = function checkSignupStep(communistId) {
+    return db.query(`
+      SELECT step
+		FROM signup_steps
+		INNER JOIN signup_flow ON signup_flow.signup_step_id = signup_steps.id
+		WHERE signup_flow.user_id = $1`, [communistId]);
 };
 
 // EXAMPLE QUERIES TO GET COMMUNIST DATA
